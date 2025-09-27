@@ -16,29 +16,29 @@ public class BotMain {
         JDA jda = JDABuilder.createDefault(token)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(new GameCommands(gameManager))
-                .setActivity(Activity.playing("Dois Jogos Incríveis"))
+                .setActivity(Activity.customStatus("Nadando na lagoa"))
                 .build();
 
         jda.awaitReady();
 
         // Comando do jogo de reflexo
         jda.upsertCommand("reflexos", "Inicia um teste de reflexo no canal.")
-                .addOption(OptionType.STRING, "tempo", "O tempo limite em segundos (ex: 2.5 ou 2,5).", true)
+                .addOption(OptionType.STRING, "timer", "O tempo limite em segundos (ex: 2.5 ou 2,5).", true)
                 .addOption(OptionType.STRING, "frase", "A frase a ser digitada.", true)
                 .queue();
 
         // Comando do jogo de resposta
         jda.upsertCommand("resposta", "Inicia um jogo de pergunta e resposta.")
-                .addOption(OptionType.STRING, "tempo", "O tempo para responder em segundos (ex: 30).", true)
+                .addOption(OptionType.STRING, "timer", "O tempo para responder em segundos (ex: 30).", true)
                 .addOption(OptionType.STRING, "pergunta", "A pergunta a ser exibida.", true)
                 .addOption(OptionType.STRING, "resposta", "A resposta correta esperada.", true)
                 .queue();
 
         // Comando do jogo de memória
         jda.upsertCommand("memoria", "Inicia um jogo de memória.")
-                .addOption(OptionType.STRING, "tempo_ocultar", "Tempo para memorizar a string (ex: 5).", true)
-                .addOption(OptionType.STRING, "tempo_limite", "Tempo para responder após a string sumir (ex: 10).", true)
-                .addOption(OptionType.STRING, "string", "A string a ser memorizada.", true)
+                .addOption(OptionType.STRING, "tempo para ocultar", "Tempo para memorizar a string (ex: 5).", true)
+                .addOption(OptionType.STRING, "timer", "Tempo para responder após a string sumir (ex: 2.5 ou 2,5).", true)
+                .addOption(OptionType.STRING, "frase", "A frase a ser memorizada.", true)
                 .queue();
 
         System.out.println("Bot está online e pronto!");

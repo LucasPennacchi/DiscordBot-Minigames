@@ -44,6 +44,13 @@ public class GameCommands extends ListenerAdapter {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
+        net.dv8tion.jda.api.entities.Message message = event.getMessage();
+        if (message.getMentions().getUsers().contains(event.getJDA().getSelfUser())) {
+            event.getChannel().sendMessage("Quack!").queue();
+            // O 'return' é importante para não continuar e tentar processar a menção como uma resposta de jogo
+            return;
+        }
+
         Game jogo = gameManager.getJogo(event.getChannel().getId());
 
         if (jogo != null) {
