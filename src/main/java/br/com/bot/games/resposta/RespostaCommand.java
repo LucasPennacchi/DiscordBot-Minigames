@@ -20,7 +20,7 @@ public class RespostaCommand implements ICommand {
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         // Validação e lógica para o comando /resposta
-        String tempoInput = event.getOption("timer").getAsString();
+        String tempoInput = event.getOption("tempo").getAsString();
         String tempoNormalizado = tempoInput.replace(',', '.');
         double tempoLimiteDouble;
         try {

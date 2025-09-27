@@ -23,21 +23,21 @@ public class BotMain {
 
         // Comando do jogo de reflexo
         jda.upsertCommand("reflexos", "Inicia um teste de reflexo no canal.")
-                .addOption(OptionType.STRING, "timer", "O tempo limite em segundos (ex: 2.5 ou 2,5).", true)
+                .addOption(OptionType.STRING, "tempo", "O tempo limite em segundos (ex: 2.5 ou 2,5).", true)
                 .addOption(OptionType.STRING, "frase", "A frase a ser digitada.", true)
                 .queue();
 
         // Comando do jogo de resposta
         jda.upsertCommand("resposta", "Inicia um jogo de pergunta e resposta.")
-                .addOption(OptionType.STRING, "timer", "O tempo para responder em segundos (ex: 30).", true)
+                .addOption(OptionType.STRING, "tempo", "O tempo para responder em segundos (ex: 30).", true)
                 .addOption(OptionType.STRING, "pergunta", "A pergunta a ser exibida.", true)
                 .addOption(OptionType.STRING, "resposta", "A resposta correta esperada.", true)
                 .queue();
 
         // Comando do jogo de memória
         jda.upsertCommand("memoria", "Inicia um jogo de memória.")
-                .addOption(OptionType.STRING, "timer_ocultar", "Tempo para memorizar a string (ex: 5).", true)
-                .addOption(OptionType.STRING, "timer", "Tempo para responder após a string sumir (ex: 2.5 ou 2,5).", true)
+                .addOption(OptionType.STRING, "tempo_ocultar", "Tempo para memorizar a string (ex: 5).", true)
+                .addOption(OptionType.STRING, "tempo", "Tempo para responder após a string sumir (ex: 2.5 ou 2,5).", true)
                 .addOption(OptionType.STRING, "frase", "A frase a ser memorizada.", true)
                 .queue();
 

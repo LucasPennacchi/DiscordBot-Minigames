@@ -19,7 +19,7 @@ public class ReflexosCommand implements ICommand {
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         // Toda a lógica de validação e início do jogo de reflexo vem para cá.
-        String tempoInput = event.getOption("timer").getAsString();
+        String tempoInput = event.getOption("tempo").getAsString();
         String tempoNormalizado = tempoInput.replace(',', '.');
         double tempoLimiteDouble;
         try {

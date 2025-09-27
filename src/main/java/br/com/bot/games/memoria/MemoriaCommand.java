@@ -30,8 +30,8 @@ public class MemoriaCommand implements ICommand {
         long tempoLimiteMs;
 
         try {
-            tempoOcultarMs = parseTimeInput(event.getOption("timer_ocultar").getAsString());
-            tempoLimiteMs = parseTimeInput(event.getOption("timer").getAsString());
+            tempoOcultarMs = parseTimeInput(event.getOption("tempo_ocultar").getAsString());
+            tempoLimiteMs = parseTimeInput(event.getOption("tempo").getAsString());
         } catch (NumberFormatException e) {
             event.reply("O tempo fornecido não é um número válido.").setEphemeral(true).queue();
             return;
