@@ -30,14 +30,14 @@ public class MemoriaCommand implements ICommand {
         long tempoLimiteMs;
 
         try {
-            tempoOcultarMs = parseTimeInput(event.getOption("tempo_ocultar").getAsString());
-            tempoLimiteMs = parseTimeInput(event.getOption("tempo_limite").getAsString());
+            tempoOcultarMs = parseTimeInput(event.getOption("timer_ocultar").getAsString());
+            tempoLimiteMs = parseTimeInput(event.getOption("timer").getAsString());
         } catch (NumberFormatException e) {
             event.reply("O tempo fornecido não é um número válido.").setEphemeral(true).queue();
             return;
         }
 
-        String stringSecreta = event.getOption("string").getAsString();
+        String stringSecreta = event.getOption("frase").getAsString();
 
         // 1. Envia a mensagem inicial com a string e guarda o ID da mensagem
         event.reply("Memorize a seguinte string...").queue();

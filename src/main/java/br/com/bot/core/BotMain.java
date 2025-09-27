@@ -36,7 +36,7 @@ public class BotMain {
 
         // Comando do jogo de memória
         jda.upsertCommand("memoria", "Inicia um jogo de memória.")
-                .addOption(OptionType.STRING, "tempo para ocultar", "Tempo para memorizar a string (ex: 5).", true)
+                .addOption(OptionType.STRING, "timer_ocultar", "Tempo para memorizar a string (ex: 5).", true)
                 .addOption(OptionType.STRING, "timer", "Tempo para responder após a string sumir (ex: 2.5 ou 2,5).", true)
                 .addOption(OptionType.STRING, "frase", "A frase a ser memorizada.", true)
                 .queue();
