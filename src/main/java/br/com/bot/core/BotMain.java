@@ -1,6 +1,7 @@
 package br.com.bot.core;
 
 import br.com.bot.games.embaralhar.EmbaralharCommand;
+import br.com.bot.games.forca.ForcaCommand;
 import br.com.bot.games.memoria.MemoriaCommand;
 import br.com.bot.games.reflexo.ReflexosCommand;
 import br.com.bot.games.resposta.RespostaCommand;
@@ -54,18 +55,8 @@ public class BotMain {
             GameManager gameManager = new GameManager();
             ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-            // 2. Monte o mapa de comandos, criando cada objeto de comando aqui.
-            Map<String, ICommand> commandMap = new ConcurrentHashMap<>();
-            // Comandos de Jogo
-            commandMap.put("reflexos", new ReflexosCommand(gameManager, scheduler));
-            commandMap.put("resposta", new RespostaCommand(gameManager, scheduler));
-            commandMap.put("memoria", new MemoriaCommand(gameManager, scheduler));
-            commandMap.put("embaralhar", new EmbaralharCommand(gameManager, scheduler));
-            // Adicione futuros jogos aqui...
-
-            // Comandos de Utilidade
-            commandMap.put("cancelar", new CancelarCommand(gameManager));
-            commandMap.put("servidores", new ListServersCommand());
+            // 2. Classe Registry para obter o mapa de comandos já pronto.
+            Map<String, ICommand> commandMap = CommandRegistry.createCommands(gameManager, scheduler);
 
             // 3. "Injete" as dependências no GameCommands.
             GameCommands gameCommandsManager = new GameCommands(gameManager, commandMap);

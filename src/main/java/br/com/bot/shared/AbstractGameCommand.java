@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractGameCommand implements ICommand {
     protected final GameManager gameManager;
     protected final ScheduledExecutorService scheduler;
-    protected static final int PREPARE_DELAY_SECONDS = 3;
+    public static final int PREPARE_DELAY_SECONDS = 3;
 
     public AbstractGameCommand(GameManager gameManager, ScheduledExecutorService scheduler) {
         this.gameManager = gameManager;

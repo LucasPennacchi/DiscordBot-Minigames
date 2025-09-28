@@ -1,10 +1,13 @@
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\BotMain.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\CommandRegistry.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\ConfigLoader.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\GameCommands.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\GameManager.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\TrayManager.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\embaralhar\EmbaralharCommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\embaralhar\EmbaralharGame.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\forca\ForcaCommand.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\forca\ForcaGame.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\memoria\MemoriaCommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\memoria\MemoriaGame.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\reflexo\ReflexoGame.java

@@ -1,1 +1,4 @@
+br\com\bot\core\CommandRegistry.class
+br\com\bot\games\forca\ForcaGame.class
+br\com\bot\games\forca\ForcaCommand.class
 br\com\bot\core\TrayManager.class
