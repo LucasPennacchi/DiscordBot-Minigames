@@ -1,12 +1,5 @@
 package br.com.bot.core;
 
-import br.com.bot.games.reflexo.ReflexosCommand;
-import br.com.bot.games.resposta.RespostaCommand;
-import br.com.bot.games.memoria.MemoriaCommand;
-import br.com.bot.games.embaralhar.EmbaralharCommand;
-import br.com.bot.utils.CancelarCommand;
-import br.com.bot.utils.ListServersCommand;
-
 import br.com.bot.shared.Game;
 import br.com.bot.shared.ICommand;
 
@@ -15,9 +8,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class GameCommands extends ListenerAdapter {
     private final GameManager gameManager;

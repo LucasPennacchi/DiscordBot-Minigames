@@ -1,5 +1,6 @@
 package br.com.bot.core;
 
+import br.com.bot.games.embaralhar.EmbaralharCommand;
 import br.com.bot.games.memoria.MemoriaCommand;
 import br.com.bot.games.reflexo.ReflexosCommand;
 import br.com.bot.games.resposta.RespostaCommand;
@@ -59,6 +60,7 @@ public class BotMain {
             commandMap.put("reflexos", new ReflexosCommand(gameManager, scheduler));
             commandMap.put("resposta", new RespostaCommand(gameManager, scheduler));
             commandMap.put("memoria", new MemoriaCommand(gameManager, scheduler));
+            commandMap.put("embaralhar", new EmbaralharCommand(gameManager, scheduler));
             // Adicione futuros jogos aqui...
 
             // Comandos de Utilidade
