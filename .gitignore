@@ -1,3 +1,6 @@
+# Ignorar arquivos de configuração com dados sensíveis
+config.properties
+
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/

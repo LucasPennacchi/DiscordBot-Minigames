@@ -1,6 +1,11 @@
 package br.com.bot.core;
 
+import br.com.bot.games.memoria.MemoriaCommand;
+import br.com.bot.games.reflexo.ReflexosCommand;
+import br.com.bot.games.resposta.RespostaCommand;
 import br.com.bot.shared.ICommand;
+import br.com.bot.utils.CancelarCommand;
+import br.com.bot.utils.ListServersCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -10,56 +15,106 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
+
 
 public class BotMain {
 
-    private static final boolean MODO_DESENVOLVIMENTO = true;
-    private static final String ID_SERVIDOR_TESTE = "1030911167952064633";
+    private static JDA jda;
+    private static TrayManager trayManager;
 
     public static void main(String[] args) {
-        // Instancia o nosso novo gerenciador de bandeja
-        TrayManager trayManager = new TrayManager();
 
+        ConfigLoader config = new ConfigLoader();
+
+        // Define a ação de desligamento que será usada pelo ícone da bandeja.
+        Runnable shutdownHook = () -> {
+            if (jda != null) {
+                System.out.println("Desligando o bot...");
+                jda.shutdown();
+            }
+        };
+        trayManager = new TrayManager(shutdownHook);
+        javax.swing.SwingUtilities.invokeLater(trayManager::init);
+
+        // Inicia a lógica principal do bot em uma thread separada.
+        new Thread(() -> conectarEConfigurarBot(config)).start();
+    }
+
+    private static void conectarEConfigurarBot(ConfigLoader config) {
         try {
-            String token = "MTQyMTQ5NDU2MTAyMDE4NjYyNA.GlF7zH.pEWmG7-daKyzKxr2CGc5zvdZXdfZvs8AaUH0wc";
-            GameManager gameManager = new GameManager();
-            GameCommands gameCommands = new GameCommands(gameManager);
+            // --- INÍCIO DA INJEÇÃO DE DEPENDÊNCIA ---
 
-            JDA jda = JDABuilder.createDefault(token)
+            // 1. Crie os "serviços" compartilhados.
+            GameManager gameManager = new GameManager();
+            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+            // 2. Monte o mapa de comandos, criando cada objeto de comando aqui.
+            Map<String, ICommand> commandMap = new ConcurrentHashMap<>();
+            // Comandos de Jogo
+            commandMap.put("reflexos", new ReflexosCommand(gameManager, scheduler));
+            commandMap.put("resposta", new RespostaCommand(gameManager, scheduler));
+            commandMap.put("memoria", new MemoriaCommand(gameManager, scheduler));
+            // Adicione futuros jogos aqui...
+
+            // Comandos de Utilidade
+            commandMap.put("cancelar", new CancelarCommand(gameManager));
+            commandMap.put("servidores", new ListServersCommand());
+
+            // 3. "Injete" as dependências no GameCommands.
+            GameCommands gameCommandsManager = new GameCommands(gameManager, commandMap);
+
+            // --- FIM DA INJEÇÃO DE DEPENDÊNCIA ---
+
+
+            // 4. Construa a instância do JDA usando as dependências e configurações.
+            jda = JDABuilder.createDefault(config.getToken())
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT)
-                    .addEventListeners(gameCommands)
-                    .setActivity(Activity.customStatus("Nadando na lagoa 🦆"))
+                    .addEventListeners(gameCommandsManager)
+                    .setActivity(Activity.customStatus("Gerenciando Jogos 🦆"))
                     .build();
 
-            // Inicia a criação do ícone da bandeja, passando a instância do JDA para o controle de fechar
-            javax.swing.SwingUtilities.invokeLater(() -> trayManager.init(jda));
-
+            // Espera o bot ficar totalmente online.
             jda.awaitReady();
 
-            // Após o bot estar pronto, atualizamos a dica do ícone
+            // Atualiza a dica de texto do ícone da bandeja para "Online".
             trayManager.updateTooltip("Bot de Jogos (Online)");
 
-            // Lógica de registro de comandos
-            List<SlashCommandData> commandDataList = new ArrayList<>();
-            for (ICommand command : gameCommands.getCommands().values()) {
-                commandDataList.add(command.getCommandData());
-            }
+            // --- LÓGICA DE REGISTRO DE COMANDOS ---
 
-            if (MODO_DESENVOLVIMENTO) {
-                Guild guild = jda.getGuildById(ID_SERVIDOR_TESTE);
+            List<ICommand> allCommands = new ArrayList<>(gameCommandsManager.getCommands().values());
+
+            if (config.isDevMode()) {
+                // MODO DE DESENVOLVIMENTO: Registra TODOS os comandos instantaneamente no servidor de teste.
+                Guild guild = jda.getGuildById(config.getTestGuildId());
                 if (guild != null) {
-                    guild.updateCommands().addCommands(commandDataList).queue();
-                    System.out.println("Comandos registrados em modo de DESENVOLVIMENTO!");
+                    List<SlashCommandData> allCommandDataForGuild = allCommands.stream()
+                            .map(ICommand::getCommandData)
+                            .collect(Collectors.toList());
+                    guild.updateCommands().addCommands(allCommandDataForGuild).queue();
+                    System.out.println("Todos os comandos registrados em modo de DESENVOLVIMENTO no servidor: " + guild.getName());
+                } else {
+                    System.err.println("Servidor de teste não encontrado! Verifique o ID em config.properties.");
                 }
             } else {
-                jda.updateCommands().addCommands(commandDataList).queue();
-                System.out.println("Comandos registrados em modo de PRODUÇÃO.");
+                // MODO DE PRODUÇÃO: Registra apenas os comandos PÚBLICOS globalmente.
+                List<SlashCommandData> publicCommands = allCommands.stream()
+                        .filter(c -> !(c instanceof ListServersCommand)) // Filtra para não incluir os comandos de admin
+                        .map(ICommand::getCommandData)
+                        .collect(Collectors.toList());
+                jda.updateCommands().addCommands(publicCommands).queue();
+                System.out.println("Apenas os comandos públicos foram registrados em modo de PRODUÇÃO (globalmente).");
             }
 
             System.out.println("Bot está online e pronto!");
 
         } catch (InterruptedException e) {
             System.err.println("A inicialização do bot foi interrompida.");
+            // Garante que a aplicação feche se a inicialização falhar
             System.exit(1);
         }
     }

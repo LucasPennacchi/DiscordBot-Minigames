@@ -9,7 +9,7 @@ public class MemoriaGame extends Game {
     private final String stringSecreta;
 
     public MemoriaGame(long tempoLimiteMs, String stringSecreta, String issuerId) {
-        super(tempoLimiteMs, issuerId); // Passa o issuerId para a classe base
+        super(tempoLimiteMs, issuerId);
         this.stringSecreta = stringSecreta;
     }
 
@@ -37,6 +37,6 @@ public class MemoriaGame extends Game {
             );
             event.getChannel().sendMessage(resultado).queue();
         }
-        // Se a resposta estiver errada, o método termina, permitindo que outros jogadores tentem.
+        // Se a resposta estiver errada, o metodo termina, permitindo que outros jogadores tentem.
     }
 }

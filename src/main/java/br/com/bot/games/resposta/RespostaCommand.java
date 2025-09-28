@@ -12,32 +12,21 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class RespostaCommand extends AbstractGameCommand {
+
     public RespostaCommand(GameManager gameManager, ScheduledExecutorService scheduler) {
         super(gameManager, scheduler);
     }
 
     @Override
-    public SlashCommandData getCommandData() {
-        return Commands.slash("resposta", "Inicia um jogo de pergunta e resposta.")
-                .addOption(OptionType.STRING, "tempo", "O tempo para responder em segundos (ex: 30).", true)
-                .addOption(OptionType.STRING, "pergunta", "A pergunta a ser exibida.", true)
-                .addOption(OptionType.STRING, "resposta", "A resposta correta esperada.", true);
-    }
-
-    @Override
     protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
-        String tempoInput = event.getOption("tempo").getAsString();
-        double tempoLimiteDouble;
-        try {
-            tempoLimiteDouble = Double.parseDouble(tempoInput.replace(',', '.'));
-        } catch (NumberFormatException e) {
-            event.reply("O tempo fornecido ('" + tempoInput + "') não é um número válido.").setEphemeral(true).queue();
+        Optional<Long> tempoOpt = parseTimeOption(event, "tempo");
+        if (tempoOpt.isEmpty()) {
             return Optional.empty();
         }
+        long tempoLimiteMs = tempoOpt.get();
 
         String pergunta = event.getOption("pergunta").getAsString();
         String resposta = event.getOption("resposta").getAsString();
-        long tempoLimiteMs = (long) (tempoLimiteDouble * 1000);
         String issuerId = event.getUser().getId();
 
         return Optional.of(new RespostaGame(tempoLimiteMs, pergunta, resposta, issuerId));
@@ -45,7 +34,7 @@ public class RespostaCommand extends AbstractGameCommand {
 
     @Override
     protected String getPrepareMessage() {
-        return "O jogo de perguntas vai começar em 3 segundos...";
+        return String.format("O jogo de perguntas vai começar em %d segundos...", PREPARE_DELAY_SECONDS);
     }
 
     @Override
@@ -64,5 +53,13 @@ public class RespostaCommand extends AbstractGameCommand {
     protected String getTimeoutMessage(Game game) {
         RespostaGame respostaGame = (RespostaGame) game;
         return "O tempo esgotou! A resposta correta era: `" + respostaGame.getRespostaCorreta() + "`";
+    }
+
+    @Override
+    public SlashCommandData getCommandData() {
+        return Commands.slash("resposta", "Inicia um jogo de pergunta e resposta.")
+                .addOption(OptionType.STRING, "tempo", "O tempo para responder em segundos (ex: 30).", true)
+                .addOption(OptionType.STRING, "pergunta", "A pergunta a ser exibida.", true)
+                .addOption(OptionType.STRING, "resposta", "A resposta correta esperada.", true);
     }
 }

@@ -29,9 +29,9 @@ public class CancelarCommand implements ICommand {
 
     @Override
     public SlashCommandData getCommandData() {
-        return Commands.slash("cancelar", "Cancela qualquer jogo ativo no canal.")
+        return Commands.slash("cancelar", "Cancela qualquer jogo ativo no canal.");
                 // IMPORTANTE: Define a permissão padrão para este comando.
                 // Apenas membros com a permissão de "Gerenciar Mensagens" (moderadores) poderão vê-lo e usá-lo.
-                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE));
+                // .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE));
     }
 }

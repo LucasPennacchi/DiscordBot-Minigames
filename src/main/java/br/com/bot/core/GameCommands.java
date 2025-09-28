@@ -5,6 +5,7 @@ import br.com.bot.games.resposta.RespostaCommand;
 import br.com.bot.games.memoria.MemoriaCommand;
 import br.com.bot.games.embaralhar.EmbaralharCommand;
 import br.com.bot.utils.CancelarCommand;
+import br.com.bot.utils.ListServersCommand;
 
 import br.com.bot.shared.Game;
 import br.com.bot.shared.ICommand;
@@ -20,19 +21,11 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class GameCommands extends ListenerAdapter {
     private final GameManager gameManager;
-    private final Map<String, ICommand> commands = new ConcurrentHashMap<>();
+    private final Map<String, ICommand> commands;
 
-    public GameCommands(GameManager gameManager) {
+    public GameCommands(GameManager gameManager, Map<String, ICommand> commands) {
         this.gameManager = gameManager;
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-        // Mapeia o nome do comando para a classe que o implementa
-        commands.put("reflexos", new ReflexosCommand(gameManager, scheduler));
-        commands.put("resposta", new RespostaCommand(gameManager, scheduler));
-        commands.put("memoria", new MemoriaCommand(gameManager, scheduler));
-        commands.put("embaralhar", new EmbaralharCommand(gameManager, scheduler));
-
-        commands.put("cancelar", new CancelarCommand(gameManager));
+        this.commands = commands;
     }
 
     // Permite que outras classes acessem o mapa de comandos.
@@ -46,7 +39,6 @@ public class GameCommands extends ListenerAdapter {
         ICommand command = commands.get(commandName);
 
         if (command != null) {
-            // Delega a execução para o objeto de comando correto.
             command.execute(event);
         }
     }

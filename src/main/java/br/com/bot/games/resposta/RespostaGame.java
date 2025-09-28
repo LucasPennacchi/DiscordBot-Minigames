@@ -10,7 +10,7 @@ public class RespostaGame extends Game {
     private final String respostaCorreta;
 
     public RespostaGame(long tempoLimiteMs, String pergunta, String respostaCorreta, String issuerId) {
-        super(tempoLimiteMs, issuerId); // Passa o issuerId para a classe base
+        super(tempoLimiteMs, issuerId);
         this.pergunta = pergunta;
         this.respostaCorreta = respostaCorreta;
     }
@@ -43,6 +43,6 @@ public class RespostaGame extends Game {
             );
             event.getChannel().sendMessage(resultado).queue();
         }
-        // Se a resposta estiver errada, o método simplesmente termina, permitindo outras tentativas.
+        // Se a resposta estiver errada, o metodo simplesmente termina, permitindo outras tentativas.
     }
 }

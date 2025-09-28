@@ -10,7 +10,7 @@ public class ReflexoGame extends Game {
     private final VerificadorDePontos verificador = new VerificadorDePontos();
 
     public ReflexoGame(String fraseCorreta, long tempoLimiteMs, String issuerId) {
-        super(tempoLimiteMs, issuerId); // Passa o issuerId para a classe base
+        super(tempoLimiteMs, issuerId);
         this.fraseCorreta = fraseCorreta;
     }
 

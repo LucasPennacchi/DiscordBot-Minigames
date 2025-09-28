@@ -19,40 +19,35 @@ public class EmbaralharCommand extends AbstractGameCommand {
         super(gameManager, scheduler);
     }
 
-    @Override
-    public SlashCommandData getCommandData() {
-        return Commands.slash("embaralhar", "Inicia um jogo de adivinhar a palavra embaralhada.")
-                .addOption(OptionType.STRING, "tempo", "O tempo limite em segundos.", true)
-                .addOption(OptionType.STRING, "palavra", "A palavra a ser embaralhada.", true);
-    }
-
     // Função auxiliar para embaralhar a palavra
     private String embaralharPalavra(String palavra) {
         List<Character> chars = new ArrayList<>();
         for (char c : palavra.toCharArray()) {
             chars.add(c);
         }
-        Collections.shuffle(chars);
-        StringBuilder sb = new StringBuilder();
-        for (char c : chars) {
-            sb.append(c);
-        }
-        return sb.toString();
+        // Garante que a palavra embaralhada não seja igual à original
+        String embaralhada;
+        do {
+            Collections.shuffle(chars);
+            StringBuilder sb = new StringBuilder();
+            for (char c : chars) {
+                sb.append(c);
+            }
+            embaralhada = sb.toString();
+        } while (embaralhada.equals(palavra) && palavra.length() > 1);
+
+        return embaralhada;
     }
 
     @Override
     protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
-        String tempoInput = event.getOption("tempo").getAsString();
-        double tempoLimiteDouble;
-        try {
-            tempoLimiteDouble = Double.parseDouble(tempoInput.replace(',', '.'));
-        } catch (NumberFormatException e) {
-            event.reply("O tempo fornecido não é um número válido.").setEphemeral(true).queue();
+        Optional<Long> tempoOpt = parseTimeOption(event, "tempo");
+        if (tempoOpt.isEmpty()) {
             return Optional.empty();
         }
+        long tempoLimiteMs = tempoOpt.get();
 
         String palavra = event.getOption("palavra").getAsString();
-        long tempoLimiteMs = (long) (tempoLimiteDouble * 1000);
         String issuerId = event.getUser().getId();
 
         return Optional.of(new EmbaralharGame(tempoLimiteMs, palavra, issuerId));
@@ -60,7 +55,7 @@ public class EmbaralharCommand extends AbstractGameCommand {
 
     @Override
     protected String getPrepareMessage() {
-        return "O jogo de embaralhar vai começar em 3 segundos...";
+        return String.format("O jogo de embaralhar vai começar em %d segundos...", PREPARE_DELAY_SECONDS);
     }
 
     @Override
@@ -83,4 +78,10 @@ public class EmbaralharCommand extends AbstractGameCommand {
         return "O tempo esgotou! A palavra correta era: `" + embaralharGame.getPalavraOriginal() + "`";
     }
 
+    @Override
+    public SlashCommandData getCommandData() {
+        return Commands.slash("embaralhar", "Inicia um jogo de adivinhar a palavra embaralhada.")
+                .addOption(OptionType.STRING, "tempo", "O tempo limite em segundos.", true)
+                .addOption(OptionType.STRING, "palavra", "A palavra a ser embaralhada.", true);
+    }
 }
