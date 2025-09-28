@@ -20,7 +20,7 @@ public abstract class AbstractGameCommand implements ICommand {
 
     // Este é o "Template Method". Ele define a estrutura e não pode ser sobrescrito.
     @Override
-    public final void execute(SlashCommandInteractionEvent event) {
+    public final void execute(final SlashCommandInteractionEvent event) {
         String channelId = event.getChannel().getId();
         if (gameManager.isJogoAtivo(channelId)) {
             event.reply("Já existe um jogo ativo neste canal!").setEphemeral(true).queue();

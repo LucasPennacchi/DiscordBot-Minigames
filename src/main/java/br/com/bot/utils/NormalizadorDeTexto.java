@@ -3,14 +3,19 @@ package br.com.bot.utils;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
+/**
+ * Classe utilitária para manipulação e sanitização de strings.
+ * Fornece métodos estáticos para operações comuns de texto.
+ */
 public class NormalizadorDeTexto {
 
     /**
      * Remove todos os acentos e marcas diacríticas de uma string.
-     * Converte 'ç' para 'c'.
+     * Este metodo utiliza o Normalizer do Java para decompor os caracteres
+     * e depois remove as marcas de combinação com uma expressão regular.
      *
-     * @param texto A string original com acentos.
-     * @return A string normalizada sem acentos.
+     * @param texto A string original que pode conter acentos (ex: "ação").
+     * @return A string normalizada sem acentos (ex: "acao"). Retorna null se a entrada for null.
      */
     public static String removerAcentos(String texto) {
         if (texto == null) {
