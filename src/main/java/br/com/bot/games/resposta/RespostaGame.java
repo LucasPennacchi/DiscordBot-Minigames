@@ -1,30 +1,33 @@
 package br.com.bot.games.resposta;
 
-import br.com.bot.shared.Game;
 import br.com.bot.core.GameManager;
+import br.com.bot.shared.Game;
 import br.com.bot.util.NormalizadorDeTexto;
-
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class RespostaGame extends Game {
     private final String pergunta;
     private final String respostaCorreta;
 
-    public RespostaGame(long tempoLimiteMs, String pergunta, String respostaCorreta) {
-        super(tempoLimiteMs);
+    public RespostaGame(long tempoLimiteMs, String pergunta, String respostaCorreta, String issuerId) {
+        super(tempoLimiteMs, issuerId); // Passa o issuerId para a classe base
         this.pergunta = pergunta;
         this.respostaCorreta = respostaCorreta;
     }
 
-    public String getPergunta() { return pergunta; }
-    public String getRespostaCorreta() { return respostaCorreta; }
+    public String getPergunta() {
+        return pergunta;
+    }
+
+    public String getRespostaCorreta() {
+        return respostaCorreta;
+    }
 
     @Override
-    public void processarResposta(MessageReceivedEvent event, GameManager gameManager) {
+    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager) {
         String respostaDoUsuario = event.getMessage().getContentRaw();
 
-        // Normaliza ambas as respostas para uma comparação justa
-        // Ignora maiúsculas/minúsculas, espaços extras e acentos.
+        // Normaliza as respostas para uma comparação justa (ignora maiúsculas/minúsculas, espaços e acentos)
         String respostaNormalizadaUsuario = NormalizadorDeTexto.removerAcentos(respostaDoUsuario.trim().toLowerCase());
         String respostaNormalizadaCorreta = NormalizadorDeTexto.removerAcentos(getRespostaCorreta().trim().toLowerCase());
 
@@ -40,7 +43,6 @@ public class RespostaGame extends Game {
             );
             event.getChannel().sendMessage(resultado).queue();
         }
-        // Se a resposta estiver errada, o método simplesmente termina. O bot não faz nada,
-        // permitindo que outros jogadores tentem responder.
+        // Se a resposta estiver errada, o método simplesmente termina, permitindo outras tentativas.
     }
 }

@@ -38,7 +38,8 @@ public class RespostaCommand implements ICommand {
 
         scheduler.schedule(() -> {
             event.getChannel().sendMessage(String.format("Tempo limite: %.2f\n",(double)tempoLimiteMs/1000) + "Qual é a resposta para:\n>>> " + pergunta).queue();
-            RespostaGame novoJogo = new RespostaGame(tempoLimiteMs, pergunta, resposta);
+            String issuerId = event.getUser().getId(); // Pega o ID do usuário
+            RespostaGame novoJogo = new RespostaGame(tempoLimiteMs, pergunta, resposta, issuerId); // Passa o ID para o construtor
             gameManager.iniciarJogo(event.getChannel().getId(), novoJogo);
 
             scheduler.schedule(() -> {

@@ -50,7 +50,8 @@ public class MemoriaCommand implements ICommand {
                 event.getChannel().editMessageById(messageId, "**Qual era a string?** Você tem " + (tempoLimiteMs / 1000.0) + " segundos!").queue();
 
                 // 3. AGORA SIM o jogo começa. Cria a instância e a registra.
-                MemoriaGame novoJogo = new MemoriaGame(tempoLimiteMs, stringSecreta);
+                String issuerId = event.getUser().getId(); // Pega o ID do usuário
+                MemoriaGame novoJogo = new MemoriaGame(tempoLimiteMs, stringSecreta, issuerId); // Passa o ID para o construtor
                 gameManager.iniciarJogo(event.getChannel().getId(), novoJogo);
 
                 // 4. Agenda o fim do jogo se o tempo limite esgotar

@@ -36,7 +36,8 @@ public class ReflexosCommand implements ICommand {
 
         scheduler.schedule(() -> {
             event.getChannel().sendMessage(String.format("Tempo limite: %.2f\n",(double)tempoLimiteMs/1000) + "VAI! Digite a frase: `" + frase + "`").queue();
-            ReflexoGame novoJogo = new ReflexoGame(frase, tempoLimiteMs);
+            String issuerId = event.getUser().getId(); // Pega o ID do usuário
+            ReflexoGame novoJogo = new ReflexoGame(frase, tempoLimiteMs, issuerId); // Passa o ID para o construtor
             gameManager.iniciarJogo(event.getChannel().getId(), novoJogo);
 
             scheduler.schedule(() -> {
