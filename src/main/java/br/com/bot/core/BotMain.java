@@ -13,44 +13,54 @@ import java.util.List;
 
 public class BotMain {
 
-    private static final boolean MODO_DESENVOLVIMENTO = false;
+    private static final boolean MODO_DESENVOLVIMENTO = true;
     private static final String ID_SERVIDOR_TESTE = "1030911167952064633";
 
-    public static void main(String[] args) throws InterruptedException {
-        String token = "MTQyMTQ5NDU2MTAyMDE4NjYyNA.GlF7zH.pEWmG7-daKyzKxr2CGc5zvdZXdfZvs8AaUH0wc";
+    public static void main(String[] args) {
+        // Instancia o nosso novo gerenciador de bandeja
+        TrayManager trayManager = new TrayManager();
 
-        GameManager gameManager = new GameManager();
-        // Instancia o GameCommands antes para podermos pegar a lista de comandos
-        GameCommands gameCommands = new GameCommands(gameManager);
+        try {
+            String token = "MTQyMTQ5NDU2MTAyMDE4NjYyNA.GlF7zH.pEWmG7-daKyzKxr2CGc5zvdZXdfZvs8AaUH0wc";
+            GameManager gameManager = new GameManager();
+            GameCommands gameCommands = new GameCommands(gameManager);
 
-        JDA jda = JDABuilder.createDefault(token)
-                .enableIntents(GatewayIntent.MESSAGE_CONTENT)
-                .addEventListeners(gameCommands) // Passa a instância já criada
-                .setActivity(Activity.customStatus("Nadando na lagoa 🦆"))
-                .build();
+            JDA jda = JDABuilder.createDefault(token)
+                    .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                    .addEventListeners(gameCommands)
+                    .setActivity(Activity.customStatus("Nadando na lagoa 🦆"))
+                    .build();
 
-        jda.awaitReady();
+            // Inicia a criação do ícone da bandeja, passando a instância do JDA para o controle de fechar
+            javax.swing.SwingUtilities.invokeLater(() -> trayManager.init(jda));
 
-        // --- LÓGICA DE REGISTRO DE COMANDOS CENTRALIZADA ---
+            jda.awaitReady();
 
-        // 1. Pega as definições de todos os comandos registrados em GameCommands
-        List<SlashCommandData> commandDataList = new ArrayList<>();
-        for (ICommand command : gameCommands.getCommands().values()) {
-            commandDataList.add(command.getCommandData());
-        }
+            // Após o bot estar pronto, atualizamos a dica do ícone
+            trayManager.updateTooltip("Bot de Jogos (Online)");
 
-        // 2. Registra os comandos (em modo de teste ou produção)
-        if (MODO_DESENVOLVIMENTO) {
-            Guild guild = jda.getGuildById(ID_SERVIDOR_TESTE);
-            if (guild != null) {
-                guild.updateCommands().addCommands(commandDataList).queue();
-                System.out.println("Comandos registrados em modo de DESENVOLVIMENTO!");
+            // Lógica de registro de comandos
+            List<SlashCommandData> commandDataList = new ArrayList<>();
+            for (ICommand command : gameCommands.getCommands().values()) {
+                commandDataList.add(command.getCommandData());
             }
-        } else {
-            jda.updateCommands().addCommands(commandDataList).queue();
-            System.out.println("Comandos registrados em modo de PRODUÇÃO (globalmente).");
-        }
 
-        System.out.println("Bot está online e pronto!");
+            if (MODO_DESENVOLVIMENTO) {
+                Guild guild = jda.getGuildById(ID_SERVIDOR_TESTE);
+                if (guild != null) {
+                    guild.updateCommands().addCommands(commandDataList).queue();
+                    System.out.println("Comandos registrados em modo de DESENVOLVIMENTO!");
+                }
+            } else {
+                jda.updateCommands().addCommands(commandDataList).queue();
+                System.out.println("Comandos registrados em modo de PRODUÇÃO.");
+            }
+
+            System.out.println("Bot está online e pronto!");
+
+        } catch (InterruptedException e) {
+            System.err.println("A inicialização do bot foi interrompida.");
+            System.exit(1);
+        }
     }
 }

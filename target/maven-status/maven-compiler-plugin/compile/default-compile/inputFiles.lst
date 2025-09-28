@@ -1,6 +1,7 @@
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\BotMain.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\GameCommands.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\GameManager.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\TrayManager.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\embaralhar\EmbaralharCommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\embaralhar\EmbaralharGame.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\memoria\MemoriaCommand.java
