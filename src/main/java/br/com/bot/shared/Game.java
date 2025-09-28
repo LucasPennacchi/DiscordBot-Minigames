@@ -19,7 +19,7 @@ public abstract class Game {
     public long getTempoInicio() { return tempoInicio; }
     public String getIssuerId() { return issuerId; } // NOVO
 
-    // O método de processar resposta agora tem uma verificação inicial
+    // O metodo de processar resposta agora tem uma verificação inicial
     public void processarResposta(MessageReceivedEvent event, GameManager gameManager) {
         // VERIFICAÇÃO PRINCIPAL: Se o autor da mensagem é quem iniciou o jogo.
         if (event.getAuthor().getId().equals(getIssuerId())) {
@@ -27,10 +27,10 @@ public abstract class Game {
             // Por enquanto, vamos apenas ignorar a resposta.
             return;
         }
-        // Chama o método específico de cada jogo.
+        // Chama o metodo específico de cada jogo.
         processarRespostaDoJogo(event, gameManager);
     }
 
-    // NOVO: Método abstrato para a lógica específica de cada jogo
+    // Metodo abstrato para a lógica específica de cada jogo
     protected abstract void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager);
 }

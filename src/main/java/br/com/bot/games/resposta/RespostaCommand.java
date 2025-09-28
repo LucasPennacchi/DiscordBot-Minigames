@@ -1,56 +1,68 @@
 package br.com.bot.games.resposta;
 
-import br.com.bot.shared.Game;
-import br.com.bot.shared.ICommand;
 import br.com.bot.core.GameManager;
-
+import br.com.bot.shared.AbstractGameCommand;
+import br.com.bot.shared.Game;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-public class RespostaCommand implements ICommand {
-    private final GameManager gameManager;
-    private final ScheduledExecutorService scheduler;
-
+public class RespostaCommand extends AbstractGameCommand {
     public RespostaCommand(GameManager gameManager, ScheduledExecutorService scheduler) {
-        this.gameManager = gameManager;
-        this.scheduler = scheduler;
+        super(gameManager, scheduler);
     }
 
     @Override
-    public void execute(SlashCommandInteractionEvent event) {
-        // Validação e lógica para o comando /resposta
+    public SlashCommandData getCommandData() {
+        return Commands.slash("resposta", "Inicia um jogo de pergunta e resposta.")
+                .addOption(OptionType.STRING, "tempo", "O tempo para responder em segundos (ex: 30).", true)
+                .addOption(OptionType.STRING, "pergunta", "A pergunta a ser exibida.", true)
+                .addOption(OptionType.STRING, "resposta", "A resposta correta esperada.", true);
+    }
+
+    @Override
+    protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
         String tempoInput = event.getOption("tempo").getAsString();
-        String tempoNormalizado = tempoInput.replace(',', '.');
         double tempoLimiteDouble;
         try {
-            tempoLimiteDouble = Double.parseDouble(tempoNormalizado);
+            tempoLimiteDouble = Double.parseDouble(tempoInput.replace(',', '.'));
         } catch (NumberFormatException e) {
             event.reply("O tempo fornecido ('" + tempoInput + "') não é um número válido.").setEphemeral(true).queue();
-            return;
+            return Optional.empty();
         }
 
         String pergunta = event.getOption("pergunta").getAsString();
         String resposta = event.getOption("resposta").getAsString();
         long tempoLimiteMs = (long) (tempoLimiteDouble * 1000);
+        String issuerId = event.getUser().getId();
 
-        event.reply("O jogo de perguntas vai começar em 3 segundos...").queue();
+        return Optional.of(new RespostaGame(tempoLimiteMs, pergunta, resposta, issuerId));
+    }
 
-        scheduler.schedule(() -> {
-            event.getChannel().sendMessage(String.format("Tempo limite: %.2f\n",(double)tempoLimiteMs/1000) + "Qual é a resposta para:\n>>> " + pergunta).queue();
-            String issuerId = event.getUser().getId(); // Pega o ID do usuário
-            RespostaGame novoJogo = new RespostaGame(tempoLimiteMs, pergunta, resposta, issuerId); // Passa o ID para o construtor
-            gameManager.iniciarJogo(event.getChannel().getId(), novoJogo);
+    @Override
+    protected String getPrepareMessage() {
+        return "O jogo de perguntas vai começar em 3 segundos...";
+    }
 
-            scheduler.schedule(() -> {
-                Game jogoFinalizado = gameManager.finalizarJogo(event.getChannel().getId());
-                if (jogoFinalizado != null) {
-                    // Garante que o jogo finalizado é do tipo correto para pegar a resposta
-                    if (jogoFinalizado instanceof RespostaGame) {
-                        event.getChannel().sendMessage("O tempo esgotou! A resposta correta era: `" + ((RespostaGame) jogoFinalizado).getRespostaCorreta() + "`").queue();
-                    }
-                }
-            }, tempoLimiteMs, TimeUnit.MILLISECONDS);
-        }, 3, TimeUnit.SECONDS);
+    @Override
+    protected String getStartMessage(Game game) {
+        RespostaGame respostaGame = (RespostaGame) game;
+        double tempoEmSegundos = respostaGame.getTempoLimiteMs() / 1000.0;
+
+        return String.format(
+                "Tempo limite: **%.1f segundos**\n\nQual é a resposta para:\n>>> %s",
+                tempoEmSegundos,
+                respostaGame.getPergunta()
+        );
+    }
+
+    @Override
+    protected String getTimeoutMessage(Game game) {
+        RespostaGame respostaGame = (RespostaGame) game;
+        return "O tempo esgotou! A resposta correta era: `" + respostaGame.getRespostaCorreta() + "`";
     }
 }

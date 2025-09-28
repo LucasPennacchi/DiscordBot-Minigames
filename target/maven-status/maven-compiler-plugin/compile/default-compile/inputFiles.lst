@@ -1,12 +1,15 @@
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\BotMain.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\GameCommands.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\core\GameManager.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\embaralhar\EmbaralharCommand.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\embaralhar\EmbaralharGame.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\memoria\MemoriaCommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\memoria\MemoriaGame.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\reflexo\ReflexoGame.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\reflexo\ReflexosCommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\resposta\RespostaCommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\resposta\RespostaGame.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\shared\AbstractGameCommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\shared\Game.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\shared\ICommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\util\NormalizadorDeTexto.java
