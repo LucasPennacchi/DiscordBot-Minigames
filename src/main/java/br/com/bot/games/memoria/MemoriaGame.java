@@ -2,7 +2,7 @@ package br.com.bot.games.memoria;
 
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.Game;
-import br.com.bot.util.NormalizadorDeTexto;
+import br.com.bot.utils.NormalizadorDeTexto;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class MemoriaGame extends Game {

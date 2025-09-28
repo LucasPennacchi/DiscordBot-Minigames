@@ -13,5 +13,6 @@ C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\games\resposta\Respos
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\shared\AbstractGameCommand.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\shared\Game.java
 C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\shared\ICommand.java
-C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\util\NormalizadorDeTexto.java
-C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\util\VerificadorDePontos.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\utils\CancelarCommand.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\utils\NormalizadorDeTexto.java
+C:\Users\lucas\Desktop\DiscordBot\src\main\java\br\com\bot\utils\VerificadorDePontos.java

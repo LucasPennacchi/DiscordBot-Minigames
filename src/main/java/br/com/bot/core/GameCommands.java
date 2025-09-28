@@ -4,6 +4,7 @@ import br.com.bot.games.reflexo.ReflexosCommand;
 import br.com.bot.games.resposta.RespostaCommand;
 import br.com.bot.games.memoria.MemoriaCommand;
 import br.com.bot.games.embaralhar.EmbaralharCommand;
+import br.com.bot.utils.CancelarCommand;
 
 import br.com.bot.shared.Game;
 import br.com.bot.shared.ICommand;
@@ -30,6 +31,8 @@ public class GameCommands extends ListenerAdapter {
         commands.put("resposta", new RespostaCommand(gameManager, scheduler));
         commands.put("memoria", new MemoriaCommand(gameManager, scheduler));
         commands.put("embaralhar", new EmbaralharCommand(gameManager, scheduler));
+
+        commands.put("cancelar", new CancelarCommand(gameManager));
     }
 
     // Permite que outras classes acessem o mapa de comandos.

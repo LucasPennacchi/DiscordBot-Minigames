@@ -2,7 +2,7 @@ package br.com.bot.games.reflexo;
 
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.Game;
-import br.com.bot.util.VerificadorDePontos;
+import br.com.bot.utils.VerificadorDePontos;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ReflexoGame extends Game {
