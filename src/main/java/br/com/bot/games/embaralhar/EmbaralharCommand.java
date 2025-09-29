@@ -2,7 +2,7 @@ package br.com.bot.games.embaralhar;
 
 import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
-import br.com.bot.shared.AbstractGameCommand;
+import br.com.bot.shared.AbstractSimpleGameCommand;
 import br.com.bot.shared.Game;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -17,15 +17,18 @@ import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Comando que implementa o Jogo de Embaralhar Palavras.
- * Esta classe herda de {@link AbstractGameCommand} e fornece a lógica para
- * embaralhar uma palavra e iniciar o jogo.
+ * <p>
+ * Esta classe herda do molde de jogos simples, {@link AbstractSimpleGameCommand}, e fornece a lógica para
+ * embaralhar uma palavra e iniciar o jogo de adivinhação.
  *
  * @author Lucas
  */
-public class EmbaralharCommand extends AbstractGameCommand {
+public class EmbaralharCommand extends AbstractSimpleGameCommand {
 
     /**
-     * Constrói o comando de embaralhar com suas dependências.
+     * Constrói o comando de embaralhar com suas dependências necessárias,
+     * passando-as para a classe-mãe abstrata.
+     *
      * @param gameManager O gerenciador de jogos ativos.
      * @param configManager O gerenciador de configurações de servidor.
      * @param scheduler O agendador de tarefas para os timers.
@@ -35,7 +38,9 @@ public class EmbaralharCommand extends AbstractGameCommand {
     }
 
     /**
-     * Embaralha os caracteres de uma palavra.
+     * Embaralha os caracteres de uma palavra de forma aleatória.
+     * Garante que a palavra embaralhada não seja igual à original.
+     *
      * @param palavra A palavra original.
      * @return A palavra com os caracteres embaralhados.
      */
@@ -44,7 +49,9 @@ public class EmbaralharCommand extends AbstractGameCommand {
         for (char c : palavra.toCharArray()) {
             chars.add(c);
         }
+
         String embaralhada;
+        // Evita que uma palavra curta como "oi" seja embaralhada para "oi" novamente.
         do {
             Collections.shuffle(chars);
             StringBuilder sb = new StringBuilder();
@@ -59,7 +66,9 @@ public class EmbaralharCommand extends AbstractGameCommand {
 
     /**
      * {@inheritDoc}
-     * Valida as opções 'tempo' e 'palavra' e cria uma instância de {@link EmbaralharGame}.
+     * <p>
+     * Valida as opções 'tempo' e 'palavra' fornecidas pelo usuário
+     * e cria uma instância de {@link EmbaralharGame} com esses dados.
      */
     @Override
     protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
@@ -67,12 +76,11 @@ public class EmbaralharCommand extends AbstractGameCommand {
         if (tempoOpt.isEmpty()) {
             return Optional.empty();
         }
-        long tempoLimiteMs = tempoOpt.get();
 
         String palavra = event.getOption("palavra").getAsString();
         String issuerId = event.getUser().getId();
 
-        return Optional.of(new EmbaralharGame(tempoLimiteMs, palavra, issuerId));
+        return Optional.of(new EmbaralharGame(tempoOpt.get(), palavra, issuerId));
     }
 
     /**

@@ -2,37 +2,31 @@ package br.com.bot.shared;
 
 import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
+import br.com.bot.core.ServerConfig;
 import br.com.bot.utils.ValidationUtils;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Uma classe abstrata que implementa o padrão "Template Method" para comandos de jogo com fluxo padrão.
- * Ela define a estrutura principal de execução de um jogo (validar, preparar, iniciar, timeout),
- * centralizando a lógica comum e delegando as partes específicas para as subclasses.
+ * A classe base para TODOS os comandos de jogo.
+ * <p>
+ * Atua como um "portão" (Gateway), implementando o padrão Template Method. Ela executa todas as
+ * verificações comuns (canal bloqueado, jogo ativo, tempo máximo) antes de delegar o fluxo
+ * de início específico do jogo para uma subclasse.
  *
  * @author Lucas
  */
 public abstract class AbstractGameCommand implements ICommand {
 
-    /** O tempo de espera em segundos antes de cada jogo começar. */
     public static final int PREPARE_DELAY_SECONDS = 3;
 
     protected final GameManager gameManager;
     protected final ConfigManager configManager;
     protected final ScheduledExecutorService scheduler;
 
-    /**
-     * Construtor para comandos de jogo padrão.
-     * @param gameManager O gerenciador de jogos ativos.
-     * @param configManager O gerenciador de configurações de servidor.
-     * @param scheduler O agendador de tarefas para os timers.
-     */
     public AbstractGameCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
         this.gameManager = gameManager;
         this.configManager = configManager;
@@ -40,53 +34,37 @@ public abstract class AbstractGameCommand implements ICommand {
     }
 
     /**
-     * Este é o "Template Method". Ele define o esqueleto da execução de um comando
-     * e não pode ser sobrescrito pelas subclasses.
+     * O "Portão": Este método final executa uma série de verificações universais para todos os jogos.
+     * Ele não pode ser sobrescrito.
+     * @param event O evento do comando a ser processado.
      */
     @Override
     public final void execute(final SlashCommandInteractionEvent event) {
-        String channelId = event.getChannel().getId();
-
-        // A verificação de canal bloqueado é feita no dispatcher (GameCommands).
-
-        if (gameManager.isJogoAtivo(channelId)) {
+        ServerConfig config = configManager.getConfig(event.getGuild().getId());
+        if (config.getBlockedChannelIds().contains(event.getChannel().getId())) {
+            event.reply("Este canal está bloqueado para jogos.").setEphemeral(true).queue();
+            return;
+        }
+        if (gameManager.isJogoAtivo(event.getChannel().getId())) {
             event.reply("Já existe um jogo ativo neste canal!").setEphemeral(true).queue();
             return;
         }
 
-        // Delega a validação de opções e criação do jogo para a subclasse.
         Optional<Game> gameOptional = createGame(event);
-        if (gameOptional.isEmpty()) {
-            return; // A subclasse já enviou a mensagem de erro.
-        }
+        if (gameOptional.isEmpty()) return;
         Game novoJogo = gameOptional.get();
 
-        // Validação centralizada de tempo máximo.
         if (!ValidationUtils.checkMaxGameTime(event, configManager, novoJogo.getTempoLimiteMs())) {
             return;
         }
 
-        event.reply(getPrepareMessage()).queue();
-
-        scheduler.schedule(() -> {
-            event.getChannel().sendMessage(getStartMessage(novoJogo)).queue();
-            gameManager.iniciarJogo(channelId, novoJogo);
-
-            scheduler.schedule(() -> {
-                Game jogoFinalizado = gameManager.finalizarJogo(channelId);
-                if (jogoFinalizado != null) {
-                    event.getChannel().sendMessage(getTimeoutMessage(jogoFinalizado)).queue();
-                }
-            }, novoJogo.getTempoLimiteMs(), TimeUnit.MILLISECONDS);
-
-        }, PREPARE_DELAY_SECONDS, TimeUnit.SECONDS);
+        // Após todas as verificações, delega o fluxo de início para a subclasse.
+        startGameFlow(event, novoJogo);
     }
 
     /**
-     * Método auxiliar centralizado para validar e converter uma opção de tempo de um comando.
-     * @param event O evento do comando.
-     * @param optionName O nome da opção a ser lida (ex: "tempo").
-     * @return Um Optional contendo o tempo em milissegundos, ou vazio se houver erro.
+     * Método de ajuda para converter a opção de tempo.
+     * É 'protected', então as classes filhas podem usá-lo.
      */
     protected Optional<Long> parseTimeOption(SlashCommandInteractionEvent event, String optionName) {
         OptionMapping option = event.getOption(optionName);
@@ -94,7 +72,6 @@ public abstract class AbstractGameCommand implements ICommand {
             event.reply("A opção obrigatória '" + optionName + "' não foi encontrada.").setEphemeral(true).queue();
             return Optional.empty();
         }
-
         String tempoInput = option.getAsString();
         String tempoNormalizado = tempoInput.replace(',', '.');
         try {
@@ -106,10 +83,18 @@ public abstract class AbstractGameCommand implements ICommand {
         }
     }
 
-    // --- MÉTODOS ABSTRATOS (Hooks para as subclasses preencherem) ---
-
+    /**
+     * As subclasses devem implementar este método para validar suas opções e criar a instância do jogo.
+     * @param event O evento do comando para extrair as opções.
+     * @return Um Optional contendo o Jogo, ou vazio se a validação falhar.
+     */
     protected abstract Optional<Game> createGame(SlashCommandInteractionEvent event);
-    protected abstract String getPrepareMessage();
-    protected abstract String getStartMessage(Game game);
-    protected abstract String getTimeoutMessage(Game game);
+
+    /**
+     * As subclasses devem implementar este método para definir o fluxo de início do jogo,
+     * que pode ser diferente para cada tipo de jogo.
+     * @param event O evento do comando original.
+     * @param game O objeto de estado do jogo já criado e validado.
+     */
+    protected abstract void startGameFlow(SlashCommandInteractionEvent event, Game game);
 }

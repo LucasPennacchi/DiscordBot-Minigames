@@ -2,7 +2,7 @@ package br.com.bot.games.reflexo;
 
 import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
-import br.com.bot.shared.AbstractGameCommand;
+import br.com.bot.shared.AbstractSimpleGameCommand;
 import br.com.bot.shared.Game;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -14,39 +14,44 @@ import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Comando que implementa o Jogo de Reflexo, onde os jogadores devem digitar uma frase rapidamente.
- * Esta classe herda de {@link AbstractGameCommand} e preenche os detalhes específicos
- * para o fluxo do jogo de reflexo.
+ * <p>
+ * Esta classe herda do molde de jogos simples, {@link AbstractSimpleGameCommand},
+ * e preenche os detalhes específicos para o fluxo do jogo de reflexo.
  *
  * @author Lucas
  */
-public class ReflexosCommand extends AbstractGameCommand {
+public class ReflexoCommand extends AbstractSimpleGameCommand {
 
     /**
-     * Constrói o comando de reflexo com suas dependências.
+     * Constrói o comando de reflexo com suas dependências necessárias,
+     * passando-as para a classe-mãe abstrata.
+     *
      * @param gameManager O gerenciador de jogos ativos.
      * @param configManager O gerenciador de configurações de servidor.
      * @param scheduler O agendador de tarefas para os timers.
      */
-    public ReflexosCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
+    public ReflexoCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
         super(gameManager, configManager, scheduler);
     }
 
     /**
      * {@inheritDoc}
-     * Valida as opções 'tempo' e 'frase' e cria uma instância de {@link ReflexoGame}.
+     * <p>
+     * Valida as opções 'tempo' e 'frase' fornecidas pelo usuário
+     * e cria uma instância de {@link ReflexoGame} com esses dados.
      */
     @Override
     protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
+        // Usa o método auxiliar herdado de AbstractGameCommand para validar o tempo.
         Optional<Long> tempoOpt = parseTimeOption(event, "tempo");
         if (tempoOpt.isEmpty()) {
-            return Optional.empty(); // O erro já foi reportado pelo método auxiliar
+            return Optional.empty(); // O erro já foi reportado ao usuário pelo método auxiliar.
         }
-        long tempoLimiteMs = tempoOpt.get();
 
         String frase = event.getOption("frase").getAsString();
         String issuerId = event.getUser().getId();
 
-        return Optional.of(new ReflexoGame(frase, tempoLimiteMs, issuerId));
+        return Optional.of(new ReflexoGame(frase, tempoOpt.get(), issuerId));
     }
 
     /**
@@ -54,6 +59,7 @@ public class ReflexosCommand extends AbstractGameCommand {
      */
     @Override
     protected String getPrepareMessage() {
+        // Usa a constante herdada para garantir consistência.
         return String.format("O teste de reflexo vai começar em %d segundos... Prepare-se!", PREPARE_DELAY_SECONDS);
     }
 
@@ -85,7 +91,7 @@ public class ReflexosCommand extends AbstractGameCommand {
      */
     @Override
     public SlashCommandData getCommandData() {
-        return Commands.slash("reflexos", "Inicia um teste de reflexo no canal.")
+        return Commands.slash("reflexo", "Inicia um teste de reflexo no canal.")
                 .addOption(OptionType.STRING, "tempo", "O tempo limite em segundos (ex: 2.5 ou 2,5).", true)
                 .addOption(OptionType.STRING, "frase", "A frase a ser digitada.", true);
     }

@@ -13,37 +13,66 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Representa o estado e a lógica de um Jogo da Forca.
+ * <p>
+ * Esta classe gerencia a palavra secreta, as tentativas corretas e incorretas (tanto de letras
+ * quanto de palavras inteiras), e é responsável por construir a representação visual
+ * do jogo (o "tabuleiro") através de um MessageEmbed.
+ *
+ * @author Lucas
+ */
 public class ForcaGame extends Game {
     private final String palavraSecreta;
     private final int maxErros;
     private final Set<Character> letrasCorretas = new HashSet<>();
     private final Set<Character> letrasErradas = new HashSet<>();
-    // NOVO: Guarda as tentativas de palavras erradas
     private final Set<String> palavrasErradas = new HashSet<>();
     private String messageId;
 
+    /**
+     * Constrói uma nova instância do Jogo da Forca.
+     * A palavra secreta é normalizada (convertida para minúsculas e sem acentos) no momento da criação.
+     *
+     * @param tempoLimiteMs O tempo limite total para o jogo em milissegundos.
+     * @param palavraSecreta A palavra que os jogadores devem adivinhar.
+     * @param maxErros O número máximo de tentativas incorretas permitidas.
+     * @param issuerId O ID do usuário que iniciou o jogo.
+     */
     public ForcaGame(long tempoLimiteMs, String palavraSecreta, int maxErros, String issuerId) {
         super(tempoLimiteMs, issuerId);
-        // Normaliza a palavra secreta para minúsculas e sem acentos
         this.palavraSecreta = NormalizadorDeTexto.removerAcentos(palavraSecreta.toLowerCase());
         this.maxErros = maxErros;
     }
 
+    /**
+     * Define o ID da mensagem do Discord que contém o tabuleiro do jogo.
+     * Essencial para que o bot possa editar a mensagem e atualizar o estado do jogo.
+     * @param messageId O ID da mensagem a ser editada.
+     */
     public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
 
+    /**
+     * Retorna a palavra secreta e normalizada do jogo.
+     * @return A palavra secreta.
+     */
     public String getPalavraSecreta() {
         return palavraSecreta;
     }
 
+    /**
+     * Constrói e retorna a representação visual do estado atual do jogo em um MessageEmbed.
+     * Inclui a palavra com as letras ocultas, tentativas erradas, contador de erros e tempo limite.
+     * @return Um {@link MessageEmbed} representando o tabuleiro do jogo.
+     */
     public MessageEmbed buildGameEmbed() {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(" Jogo da Forca ");
         embed.setColor(Color.CYAN);
 
-        // --- ALTERAÇÃO 1: Lógica para exibir a palavra ---
-        // Agora, caracteres que não são letras (como espaço e hífen) são revelados desde o início.
+        // Constrói a exibição da palavra (ex: G U A R D A - C H U V A)
         String palavraExibida = palavraSecreta.chars()
                 .mapToObj(cInt -> {
                     char c = (char) cInt;
@@ -64,13 +93,11 @@ public class ForcaGame extends Game {
         if (letrasErradasStr.isEmpty()) {
             letrasErradasStr = "Nenhuma ainda.";
         }
-        // Exibe também as palavras erradas que foram tentadas
         if (!palavrasErradas.isEmpty()) {
             letrasErradasStr += "\n**Palavras erradas:** " + String.join(", ", palavrasErradas);
         }
         embed.addField("Tentativas Erradas:", letrasErradasStr, true);
 
-        // O total de erros agora é a soma de letras erradas e palavras erradas
         int errosAtuais = letrasErradas.size() + palavrasErradas.size();
         StringBuilder errosDisplay = new StringBuilder();
         for (int i = 0; i < maxErros; i++) {
@@ -86,44 +113,46 @@ public class ForcaGame extends Game {
         return embed.build();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Processa a tentativa de um jogador. Verifica se a tentativa é uma letra ou uma palavra inteira,
+     * atualiza o estado do jogo (letras corretas/erradas) e edita a mensagem do tabuleiro.
+     * Também verifica as condições de vitória ou derrota após cada jogada válida.
+     */
     @Override
     protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager, ConfigManager configManager) {
         String tentativa = NormalizadorDeTexto.removerAcentos(event.getMessage().getContentRaw().toLowerCase());
 
-        // --- ALTERAÇÃO 2: Lógica para processar a resposta ---
-        // Decide se a tentativa é uma letra ou uma palavra inteira.
+        if (tentativa.isEmpty()) return;
+
+        // Lógica para tentativa de palavra inteira
         if (tentativa.length() > 1) {
-            // É uma tentativa de palavra inteira
             if (tentativa.equals(palavraSecreta)) {
-                // VITÓRIA!
                 gameManager.finalizarJogo(event.getChannel().getId());
                 event.getChannel().sendMessage("🎉 **VITÓRIA!** " + event.getAuthor().getAsMention() + " acertou a palavra completa: `" + palavraSecreta + "`!").queue();
-                return; // Encerra o processamento
+                return;
             } else {
-                // Palavra errada, adiciona à lista e conta como 1 erro
                 palavrasErradas.add(tentativa);
             }
-        } else if (tentativa.length() == 1 && Character.isLetter(tentativa.charAt(0))) {
-            // É uma tentativa de letra
+            // Lógica para tentativa de letra
+        } else if (Character.isLetter(tentativa.charAt(0))) {
             char letra = tentativa.charAt(0);
             if (letrasCorretas.contains(letra) || letrasErradas.contains(letra)) {
-                return; // Ignora letras repetidas
+                return;
             }
-
             if (palavraSecreta.indexOf(letra) >= 0) {
                 letrasCorretas.add(letra);
             } else {
                 letrasErradas.add(letra);
             }
         } else {
-            // Input inválido (ex: um número, um caractere especial), simplesmente ignora.
-            return;
+            return; // Ignora inputs que não são letras ou palavras
         }
 
-        // Após cada tentativa, atualiza o tabuleiro do jogo
+        // Atualiza o tabuleiro e verifica condições de fim de jogo
         event.getChannel().editMessageEmbedsById(messageId, buildGameEmbed()).queue();
 
-        // Verifica condição de vitória (todas as letras foram adivinhadas)
         boolean vitoriaPorLetras = palavraSecreta.chars()
                 .filter(Character::isLetter)
                 .allMatch(c -> letrasCorretas.contains((char) c));
@@ -133,7 +162,6 @@ public class ForcaGame extends Game {
             return;
         }
 
-        // Verifica condição de derrota (atingiu o número máximo de erros)
         int errosAtuais = letrasErradas.size() + palavrasErradas.size();
         if (errosAtuais >= maxErros) {
             gameManager.finalizarJogo(event.getChannel().getId());

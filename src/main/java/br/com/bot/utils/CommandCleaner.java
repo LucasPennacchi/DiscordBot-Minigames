@@ -6,14 +6,32 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 
 /**
- * Uma classe de utilidade para limpar/remover todos os comandos de barra do bot no Discord.
- * Lê as configurações do arquivo config.properties.
- * Execute o método main() desta classe para realizar a limpeza.
+ * Uma classe de utilidade para limpar e remover todos os comandos de barra do bot no Discord.
+ * <p>
+ * Esta é uma aplicação standalone que deve ser executada manualmente quando necessário
+ * para resolver problemas de comandos duplicados ou dessincronizados. Ela lê as
+ * configurações (token e ID do servidor de teste) do arquivo {@code config.properties},
+ * conecta-se ao Discord, envia requisições para apagar os comandos e se desconecta.
+ *
+ * @author Lucas
  */
 public class CommandCleaner {
 
-    // As constantes de configuração foram REMOVIDAS daqui.
-
+    /**
+     * O ponto de entrada para a ferramenta de limpeza de comandos.
+     * <p>
+     * O método executa as seguintes ações:
+     * <ol>
+     * <li>Carrega as configurações do bot a partir de {@code config.properties}.</li>
+     * <li>Valida se o token foi preenchido.</li>
+     * <li>Conecta-se ao Discord usando o token fornecido.</li>
+     * <li>Envia uma requisição para apagar todos os comandos globais.</li>
+     * <li>Envia uma requisição para apagar todos os comandos do servidor de teste (se configurado).</li>
+     * <li>Desliga a conexão de forma graciosa.</li>
+     * </ol>
+     *
+     * @param args Argumentos de linha de comando (não utilizados por esta aplicação).
+     */
     public static void main(String[] args) {
         System.out.println("### FERRAMENTA DE LIMPEZA DE COMANDOS ###");
 
@@ -31,7 +49,7 @@ public class CommandCleaner {
         try {
             System.out.println("Conectando ao Discord...");
             JDA jda = JDABuilder.createDefault(token).build();
-            jda.awaitReady();
+            jda.awaitReady(); // Espera a conexão ser estabelecida
 
             // 3. Limpa os comandos GLOBAIS
             System.out.println("Limpando comandos globais...");
@@ -55,6 +73,7 @@ public class CommandCleaner {
             System.out.println("\nSolicitações de limpeza enviadas. Pode levar alguns minutos para o Discord atualizar.");
             System.out.println("Desligando o bot de limpeza...");
 
+            // Desliga o JDA de forma graciosa
             jda.shutdown();
 
         } catch (InterruptedException e) {

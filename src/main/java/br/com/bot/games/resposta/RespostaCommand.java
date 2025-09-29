@@ -2,7 +2,7 @@ package br.com.bot.games.resposta;
 
 import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
-import br.com.bot.shared.AbstractGameCommand;
+import br.com.bot.shared.AbstractSimpleGameCommand;
 import br.com.bot.shared.Game;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -14,15 +14,18 @@ import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Comando que implementa o Jogo de Pergunta e Resposta.
- * Esta classe herda de {@link AbstractGameCommand} e define a lógica específica
- * para iniciar um jogo de trivia.
+ * <p>
+ * Esta classe herda do molde de jogos simples, {@link AbstractSimpleGameCommand},
+ * e define a lógica específica para iniciar um jogo de trivia.
  *
  * @author Lucas
  */
-public class RespostaCommand extends AbstractGameCommand {
+public class RespostaCommand extends AbstractSimpleGameCommand {
 
     /**
-     * Constrói o comando de resposta com suas dependências.
+     * Constrói o comando de resposta com suas dependências necessárias,
+     * passando-as para a classe-mãe abstrata.
+     *
      * @param gameManager O gerenciador de jogos ativos.
      * @param configManager O gerenciador de configurações de servidor.
      * @param scheduler O agendador de tarefas para os timers.
@@ -33,7 +36,9 @@ public class RespostaCommand extends AbstractGameCommand {
 
     /**
      * {@inheritDoc}
-     * Valida as opções 'tempo', 'pergunta' e 'resposta' e cria uma instância de {@link RespostaGame}.
+     * <p>
+     * Valida as opções 'tempo', 'pergunta' e 'resposta' fornecidas pelo usuário
+     * e cria uma instância de {@link RespostaGame} com esses dados.
      */
     @Override
     protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
@@ -41,13 +46,12 @@ public class RespostaCommand extends AbstractGameCommand {
         if (tempoOpt.isEmpty()) {
             return Optional.empty();
         }
-        long tempoLimiteMs = tempoOpt.get();
 
         String pergunta = event.getOption("pergunta").getAsString();
         String resposta = event.getOption("resposta").getAsString();
         String issuerId = event.getUser().getId();
 
-        return Optional.of(new RespostaGame(tempoLimiteMs, pergunta, resposta, issuerId));
+        return Optional.of(new RespostaGame(tempoOpt.get(), pergunta, resposta, issuerId));
     }
 
     /**

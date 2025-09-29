@@ -16,24 +16,49 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
-
+/**
+ * A classe principal e ponto de entrada da aplicação do bot.
+ * <p>
+ * Orquestra o ciclo de vida completo do bot:
+ * <ol>
+ * <li>Carrega as configurações do arquivo {@code config.properties}.</li>
+ * <li>Inicializa o ícone da bandeja do sistema (System Tray).</li>
+ * <li>Inicia a lógica de conexão e configuração do bot em uma thread separada.</li>
+ * <li>Atua como o "Injetor de Dependências" manual da aplicação.</li>
+ * <li>Gerencia o registro de comandos de barra, alternando entre modo de desenvolvimento e produção.</li>
+ * </ol>
+ *
+ * @author Lucas
+ */
 public class BotMain {
 
     // --- VARIÁVEIS DE CONFIGURAÇÃO GLOBAIS ---
-    // ALTERAÇÃO: Estas variáveis agora guardarão a configuração para todo o projeto.
+    /** Indica se o bot está rodando em modo de desenvolvimento. Lido de config.properties. */
     public static boolean IS_DEV_MODE;
+    /** O token secreto do bot. Lido de config.properties. */
     private static String TOKEN;
+    /** O ID do servidor de teste. Lido de config.properties. */
     public static String ID_SERVIDOR_TESTE;
     // ------------------------------------------
 
+    /** A instância principal do JDA, para ser acessível globalmente. */
     private static JDA jda;
+    /** A instância do gerenciador do ícone da bandeja do sistema. */
     private static TrayManager trayManager;
 
+    /**
+     * O método principal que inicia a aplicação.
+     * <p>
+     * Carrega as configurações, prepara e exibe o ícone da bandeja do sistema e
+     * dispara a thread de conexão do bot.
+     *
+     * @param args Argumentos de linha de comando (não utilizados).
+     */
     public static void main(String[] args) {
         // Carrega as configurações do arquivo .properties
         ConfigLoader config = new ConfigLoader();
 
-        // ALTERAÇÃO: Preenche nossas variáveis globais com os valores do arquivo
+        // Preenche nossas variáveis globais com os valores do arquivo
         TOKEN = config.getToken();
         ID_SERVIDOR_TESTE = config.getTestGuildId();
         IS_DEV_MODE = config.isDevMode();
@@ -48,28 +73,28 @@ public class BotMain {
         trayManager = new TrayManager(shutdownHook);
         javax.swing.SwingUtilities.invokeLater(trayManager::init);
 
-        // Inicia a lógica principal do bot em uma thread separada.
-        // ALTERAÇÃO: Não precisa mais passar 'config' como parâmetro.
+        // Inicia a lógica principal do bot em uma thread separada para não travar a UI.
         new Thread(BotMain::conectarEConfigurarBot).start();
     }
 
-    // ALTERAÇÃO: O método agora usa as variáveis estáticas da classe.
+    /**
+     * Contém a lógica principal de conexão, montagem de dependências e registro de comandos.
+     * Este método é executado em uma thread de segundo plano para não congelar a aplicação.
+     */
     private static void conectarEConfigurarBot() {
         try {
             // --- INÍCIO DA INJEÇÃO DE DEPENDÊNCIA ---
-            ConfigLoader config = new ConfigLoader(); // Mantemos este para o token, etc.
             GameManager gameManager = new GameManager();
-            ConfigManager configManager = new ConfigManager(); // NOVO
+            ConfigManager configManager = new ConfigManager();
             ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-            Map<String, ICommand> commandMap = CommandRegistry.createCommands(gameManager, configManager, scheduler); // NOVO
-            GameCommands gameCommandsManager = new GameCommands(gameManager, configManager, commandMap); // NOVO
-
+            Map<String, ICommand> commandMap = CommandRegistry.createCommands(gameManager, configManager, scheduler);
+            GameCommands gameCommandsManager = new GameCommands(gameManager, configManager, commandMap);
             // --- FIM DA INJEÇÃO DE DEPENDÊNCIA ---
 
 
-            // 4. Construa a instância do JDA usando as dependências e configurações.
-            jda = JDABuilder.createDefault(TOKEN) // Usa a variável estática
+            // Constrói a instância do JDA usando as dependências e configurações.
+            jda = JDABuilder.createDefault(TOKEN)
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                     .addEventListeners(gameCommandsManager)
                     .setActivity(Activity.customStatus("Gerenciando Jogos 🦆"))
@@ -79,20 +104,15 @@ public class BotMain {
             trayManager.updateTooltip("Bot de Jogos (Online)");
 
             // --- LÓGICA DE REGISTRO E LIMPEZA AUTOMÁTICA DE COMANDOS ---
-
             List<ICommand> allCommands = new ArrayList<>(gameCommandsManager.getCommands().values());
 
             if (IS_DEV_MODE) {
-                // ESTAMOS EM MODO DE DESENVOLVIMENTO
                 Guild guild = jda.getGuildById(ID_SERVIDOR_TESTE);
                 if (guild != null) {
                     System.out.println("Modo de Desenvolvimento Ativo.");
-
-                    // 1. LIMPA o escopo global para evitar duplicatas de comandos antigos de produção.
                     System.out.println("Limpando comandos globais...");
                     jda.updateCommands().addCommands().queue();
 
-                    // 2. REGISTRA todos os comandos apenas no servidor de teste.
                     List<SlashCommandData> allCommandDataForGuild = allCommands.stream()
                             .map(ICommand::getCommandData)
                             .collect(Collectors.toList());
@@ -102,19 +122,15 @@ public class BotMain {
                     System.err.println("Servidor de teste não encontrado! Verifique o ID em config.properties.");
                 }
             } else {
-                // ESTAMOS EM MODO DE PRODUÇÃO
                 System.out.println("Modo de Produção Ativo.");
-
-                // 1. LIMPA os comandos do servidor de teste para evitar duplicatas.
                 Guild guild = jda.getGuildById(ID_SERVIDOR_TESTE);
                 if (guild != null) {
                     System.out.println("Limpando comandos do servidor de teste...");
                     guild.updateCommands().addCommands().queue();
                 }
 
-                // 2. REGISTRA apenas os comandos públicos globalmente.
                 List<SlashCommandData> publicCommands = allCommands.stream()
-                        .filter(c -> !(c instanceof ListServersCommand)) // Filtra para não incluir os comandos de admin
+                        .filter(c -> !(c instanceof ListServersCommand))
                         .map(ICommand::getCommandData)
                         .collect(Collectors.toList());
                 jda.updateCommands().addCommands(publicCommands).queue();
