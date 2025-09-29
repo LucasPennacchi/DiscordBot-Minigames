@@ -1,8 +1,9 @@
 package br.com.bot.games.reflexo;
 
+import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.Game;
-import br.com.bot.utils.VerificadorDePontos;
+import br.com.bot.games.memoria.VerificadorDePontos;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ReflexoGame extends Game {
@@ -19,17 +20,14 @@ public class ReflexoGame extends Game {
     }
 
     @Override
-    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager) {
-        // Finaliza o jogo na primeira resposta válida
+    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager, ConfigManager configManager) {
         gameManager.finalizarJogo(event.getChannel().getId());
-
         String respostaDoUsuario = event.getMessage().getContentRaw();
         long tempoDeReacao = System.currentTimeMillis() - getTempoInicio();
 
         int pontuacaoMaxima = getFraseCorreta().length() * 2;
         int pontosObtidos = verificador.calcularPontuacao(getFraseCorreta(), respostaDoUsuario);
         double porcentagem = (pontuacaoMaxima > 0) ? ((double) pontosObtidos / pontuacaoMaxima) * 100.0 : 0.0;
-
         String resultado = String.format(
                 "🎉 %s respondeu em %.2f segundos!\n" +
                         "**Frase correta:** `%s`\n" +

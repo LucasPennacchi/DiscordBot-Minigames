@@ -1,5 +1,6 @@
 package br.com.bot.games.forca;
 
+import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.Game;
 import br.com.bot.utils.NormalizadorDeTexto;
@@ -86,7 +87,7 @@ public class ForcaGame extends Game {
     }
 
     @Override
-    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager) {
+    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager, ConfigManager configManager) {
         String tentativa = NormalizadorDeTexto.removerAcentos(event.getMessage().getContentRaw().toLowerCase());
 
         // --- ALTERAÇÃO 2: Lógica para processar a resposta ---

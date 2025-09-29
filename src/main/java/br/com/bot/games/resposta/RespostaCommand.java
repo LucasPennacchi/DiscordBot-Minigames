@@ -1,5 +1,6 @@
 package br.com.bot.games.resposta;
 
+import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.AbstractGameCommand;
 import br.com.bot.shared.Game;
@@ -13,8 +14,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class RespostaCommand extends AbstractGameCommand {
 
-    public RespostaCommand(GameManager gameManager, ScheduledExecutorService scheduler) {
-        super(gameManager, scheduler);
+    public RespostaCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
+        super(gameManager, configManager, scheduler);
     }
 
     @Override

@@ -1,7 +1,9 @@
 package br.com.bot.shared;
 
 import br.com.bot.core.BotMain; // Importa o BotMain para acessar a variável estática
+import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
+import br.com.bot.core.ServerConfig;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public abstract class Game {
@@ -19,20 +21,18 @@ public abstract class Game {
     public long getTempoInicio() { return tempoInicio; }
     public String getIssuerId() { return issuerId; }
 
-    public void processarResposta(MessageReceivedEvent event, GameManager gameManager) {
+    protected abstract void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager, ConfigManager configManager);
 
-        if (event.getAuthor().getId().equals(getIssuerId())) {
-            // A condição para permitir que o criador jogue é ser DEV_MODE E estar no servidor de teste.
-            boolean isCreatorAllowedToPlay = BotMain.IS_DEV_MODE && event.getGuild().getId().equals(BotMain.ID_SERVIDOR_TESTE);
+    public void processarResposta(MessageReceivedEvent event, GameManager gameManager, ConfigManager configManager) {
+        String guildId = event.getGuild().getId();
+        ServerConfig config = configManager.getConfig(guildId);
 
-            // Se a condição especial NÃO for atendida, bloqueia a resposta e encerra.
-            if (!isCreatorAllowedToPlay) {
-                return;
+        // A regra agora é baseada na configuração do servidor, não mais no DEV_MODE
+        if (!config.isAllowCreatorToPlay()) {
+            if (event.getAuthor().getId().equals(getIssuerId())) {
+                return; // Bloqueia o criador
             }
         }
-
-        processarRespostaDoJogo(event, gameManager);
+        processarRespostaDoJogo(event, gameManager, configManager);
     }
-
-    protected abstract void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager);
 }

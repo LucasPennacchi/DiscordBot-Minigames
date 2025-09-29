@@ -1,5 +1,6 @@
 package br.com.bot.games.reflexo;
 
+import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.AbstractGameCommand;
 import br.com.bot.shared.Game;
@@ -13,8 +14,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class ReflexosCommand extends AbstractGameCommand {
 
-    public ReflexosCommand(GameManager gameManager, ScheduledExecutorService scheduler) {
-        super(gameManager, scheduler);
+    public ReflexosCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
+        super(gameManager, configManager, scheduler);
     }
 
     @Override

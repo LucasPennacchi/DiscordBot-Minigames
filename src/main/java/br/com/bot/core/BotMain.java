@@ -1,7 +1,7 @@
 package br.com.bot.core;
 
 import br.com.bot.shared.ICommand;
-import br.com.bot.utils.ListServersCommand;
+import br.com.bot.utils.command.ListServersCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -57,10 +57,14 @@ public class BotMain {
     private static void conectarEConfigurarBot() {
         try {
             // --- INÍCIO DA INJEÇÃO DE DEPENDÊNCIA ---
+            ConfigLoader config = new ConfigLoader(); // Mantemos este para o token, etc.
             GameManager gameManager = new GameManager();
+            ConfigManager configManager = new ConfigManager(); // NOVO
             ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-            Map<String, ICommand> commandMap = CommandRegistry.createCommands(gameManager, scheduler);
-            GameCommands gameCommandsManager = new GameCommands(gameManager, commandMap);
+
+            Map<String, ICommand> commandMap = CommandRegistry.createCommands(gameManager, configManager, scheduler); // NOVO
+            GameCommands gameCommandsManager = new GameCommands(gameManager, configManager, commandMap); // NOVO
+
             // --- FIM DA INJEÇÃO DE DEPENDÊNCIA ---
 
 

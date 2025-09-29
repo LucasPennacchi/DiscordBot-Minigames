@@ -1,5 +1,6 @@
 package br.com.bot.games.embaralhar;
 
+import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.AbstractGameCommand;
 import br.com.bot.shared.Game;
@@ -15,8 +16,8 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class EmbaralharCommand extends AbstractGameCommand {
-    public EmbaralharCommand(GameManager gameManager, ScheduledExecutorService scheduler) {
-        super(gameManager, scheduler);
+    public EmbaralharCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
+        super(gameManager, configManager, scheduler);
     }
 
     // Função auxiliar para embaralhar a palavra

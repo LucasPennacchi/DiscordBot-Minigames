@@ -1,5 +1,6 @@
 package br.com.bot.games.embaralhar;
 
+import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.Game;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -17,7 +18,7 @@ public class EmbaralharGame extends Game {
     }
 
     @Override
-    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager) {
+    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager, ConfigManager configManager) {
         String respostaDoUsuario = event.getMessage().getContentRaw();
         if (respostaDoUsuario.equalsIgnoreCase(palavraOriginal)) {
             gameManager.finalizarJogo(event.getChannel().getId());

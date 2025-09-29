@@ -1,5 +1,6 @@
 package br.com.bot.games.memoria;
 
+import br.com.bot.core.ConfigManager;
 import br.com.bot.core.GameManager;
 import br.com.bot.shared.Game;
 import br.com.bot.utils.NormalizadorDeTexto;
@@ -18,7 +19,7 @@ public class MemoriaGame extends Game {
     }
 
     @Override
-    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager) {
+    protected void processarRespostaDoJogo(MessageReceivedEvent event, GameManager gameManager, ConfigManager configManager) {
         String respostaDoUsuario = event.getMessage().getContentRaw();
 
         // Normaliza a resposta para uma comparação justa
