@@ -15,18 +15,35 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Comando que implementa o Jogo de Embaralhar Palavras.
+ * Esta classe herda de {@link AbstractGameCommand} e fornece a lógica para
+ * embaralhar uma palavra e iniciar o jogo.
+ *
+ * @author Lucas
+ */
 public class EmbaralharCommand extends AbstractGameCommand {
+
+    /**
+     * Constrói o comando de embaralhar com suas dependências.
+     * @param gameManager O gerenciador de jogos ativos.
+     * @param configManager O gerenciador de configurações de servidor.
+     * @param scheduler O agendador de tarefas para os timers.
+     */
     public EmbaralharCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
         super(gameManager, configManager, scheduler);
     }
 
-    // Função auxiliar para embaralhar a palavra
+    /**
+     * Embaralha os caracteres de uma palavra.
+     * @param palavra A palavra original.
+     * @return A palavra com os caracteres embaralhados.
+     */
     private String embaralharPalavra(String palavra) {
         List<Character> chars = new ArrayList<>();
         for (char c : palavra.toCharArray()) {
             chars.add(c);
         }
-        // Garante que a palavra embaralhada não seja igual à original
         String embaralhada;
         do {
             Collections.shuffle(chars);
@@ -40,6 +57,10 @@ public class EmbaralharCommand extends AbstractGameCommand {
         return embaralhada;
     }
 
+    /**
+     * {@inheritDoc}
+     * Valida as opções 'tempo' e 'palavra' e cria uma instância de {@link EmbaralharGame}.
+     */
     @Override
     protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
         Optional<Long> tempoOpt = parseTimeOption(event, "tempo");
@@ -54,11 +75,17 @@ public class EmbaralharCommand extends AbstractGameCommand {
         return Optional.of(new EmbaralharGame(tempoLimiteMs, palavra, issuerId));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getPrepareMessage() {
         return String.format("O jogo de embaralhar vai começar em %d segundos...", PREPARE_DELAY_SECONDS);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getStartMessage(Game game) {
         EmbaralharGame embaralharGame = (EmbaralharGame) game;
@@ -73,12 +100,18 @@ public class EmbaralharCommand extends AbstractGameCommand {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getTimeoutMessage(Game game) {
         EmbaralharGame embaralharGame = (EmbaralharGame) game;
         return "O tempo esgotou! A palavra correta era: `" + embaralharGame.getPalavraOriginal() + "`";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SlashCommandData getCommandData() {
         return Commands.slash("embaralhar", "Inicia um jogo de adivinhar a palavra embaralhada.")

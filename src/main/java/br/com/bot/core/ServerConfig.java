@@ -6,17 +6,16 @@ import java.util.Set;
 public class ServerConfig {
     private boolean allowCreatorToPlay = false;
 
-    // NOVO: Tempo máximo em segundos. Usamos -1 como padrão para "sem limite".
+    // Tempo máximo em segundos. Usamos -1 como padrão para "sem limite".
     private long maxGameTimeSeconds = -1;
 
-    // NOVO: Lista de IDs de canais que estão bloqueados.
+    // Lista de IDs de canais que estão bloqueados.
     private Set<String> blockedChannelIds = new HashSet<>();
 
-    // Getters e Setters para as novas configurações
+    // Getters e Setters
     public boolean isAllowCreatorToPlay() {
         return allowCreatorToPlay;
     }
-
     public void setAllowCreatorToPlay(boolean allowCreatorToPlay) {
         this.allowCreatorToPlay = allowCreatorToPlay;
     }
@@ -24,21 +23,22 @@ public class ServerConfig {
     public long getMaxGameTimeSeconds() {
         return maxGameTimeSeconds;
     }
-
     public void setMaxGameTimeSeconds(long maxGameTimeSeconds) {
         this.maxGameTimeSeconds = maxGameTimeSeconds;
     }
 
     public Set<String> getBlockedChannelIds() {
-        return blockedChannelIds;
+        return new HashSet<>(blockedChannelIds);
     }
-
-    // Métodos para adicionar e remover canais da lista de bloqueio
     public void blockChannel(String channelId) {
-        blockedChannelIds.add(channelId);
+        if (this.blockedChannelIds == null) {
+            this.blockedChannelIds = new HashSet<>();
+        }
+        this.blockedChannelIds.add(channelId);
     }
-
     public void unblockChannel(String channelId) {
-        blockedChannelIds.remove(channelId);
+        if (this.blockedChannelIds != null) {
+            this.blockedChannelIds.remove(channelId);
+        }
     }
 }

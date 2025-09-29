@@ -12,12 +12,29 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Comando que implementa o Jogo de Pergunta e Resposta.
+ * Esta classe herda de {@link AbstractGameCommand} e define a lógica específica
+ * para iniciar um jogo de trivia.
+ *
+ * @author Lucas
+ */
 public class RespostaCommand extends AbstractGameCommand {
 
+    /**
+     * Constrói o comando de resposta com suas dependências.
+     * @param gameManager O gerenciador de jogos ativos.
+     * @param configManager O gerenciador de configurações de servidor.
+     * @param scheduler O agendador de tarefas para os timers.
+     */
     public RespostaCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
         super(gameManager, configManager, scheduler);
     }
 
+    /**
+     * {@inheritDoc}
+     * Valida as opções 'tempo', 'pergunta' e 'resposta' e cria uma instância de {@link RespostaGame}.
+     */
     @Override
     protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
         Optional<Long> tempoOpt = parseTimeOption(event, "tempo");
@@ -33,11 +50,17 @@ public class RespostaCommand extends AbstractGameCommand {
         return Optional.of(new RespostaGame(tempoLimiteMs, pergunta, resposta, issuerId));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getPrepareMessage() {
         return String.format("O jogo de perguntas vai começar em %d segundos...", PREPARE_DELAY_SECONDS);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getStartMessage(Game game) {
         RespostaGame respostaGame = (RespostaGame) game;
@@ -50,12 +73,18 @@ public class RespostaCommand extends AbstractGameCommand {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getTimeoutMessage(Game game) {
         RespostaGame respostaGame = (RespostaGame) game;
         return "O tempo esgotou! A resposta correta era: `" + respostaGame.getRespostaCorreta() + "`";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SlashCommandData getCommandData() {
         return Commands.slash("resposta", "Inicia um jogo de pergunta e resposta.")

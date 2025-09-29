@@ -12,34 +12,54 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Comando que implementa o Jogo de Reflexo, onde os jogadores devem digitar uma frase rapidamente.
+ * Esta classe herda de {@link AbstractGameCommand} e preenche os detalhes específicos
+ * para o fluxo do jogo de reflexo.
+ *
+ * @author Lucas
+ */
 public class ReflexosCommand extends AbstractGameCommand {
 
+    /**
+     * Constrói o comando de reflexo com suas dependências.
+     * @param gameManager O gerenciador de jogos ativos.
+     * @param configManager O gerenciador de configurações de servidor.
+     * @param scheduler O agendador de tarefas para os timers.
+     */
     public ReflexosCommand(GameManager gameManager, ConfigManager configManager, ScheduledExecutorService scheduler) {
         super(gameManager, configManager, scheduler);
     }
 
+    /**
+     * {@inheritDoc}
+     * Valida as opções 'tempo' e 'frase' e cria uma instância de {@link ReflexoGame}.
+     */
     @Override
     protected Optional<Game> createGame(SlashCommandInteractionEvent event) {
-        // Usa o metodo auxiliar herdado para validar o tempo
         Optional<Long> tempoOpt = parseTimeOption(event, "tempo");
         if (tempoOpt.isEmpty()) {
-            return Optional.empty(); // O erro já foi reportado
+            return Optional.empty(); // O erro já foi reportado pelo método auxiliar
         }
         long tempoLimiteMs = tempoOpt.get();
 
         String frase = event.getOption("frase").getAsString();
         String issuerId = event.getUser().getId();
 
-        // Cria e retorna a instância do jogo
         return Optional.of(new ReflexoGame(frase, tempoLimiteMs, issuerId));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getPrepareMessage() {
-        // Usa a constante herdada para garantir consistência
         return String.format("O teste de reflexo vai começar em %d segundos... Prepare-se!", PREPARE_DELAY_SECONDS);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getStartMessage(Game game) {
         ReflexoGame reflexoGame = (ReflexoGame) game;
@@ -52,11 +72,17 @@ public class ReflexosCommand extends AbstractGameCommand {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getTimeoutMessage(Game game) {
         return "O tempo esgotou e ninguém respondeu!";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SlashCommandData getCommandData() {
         return Commands.slash("reflexos", "Inicia um teste de reflexo no canal.")
