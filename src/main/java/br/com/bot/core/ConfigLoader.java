@@ -1,6 +1,5 @@
 package br.com.bot.core;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -29,11 +28,16 @@ public class ConfigLoader {
      */
     public ConfigLoader() {
         // Tenta carregar o arquivo config.properties da pasta resources
-        try (InputStream input = new FileInputStream("config.properties")) {
+        try (InputStream input = getClass().getResourceAsStream("/config.properties")) {
+            if (input == null) {
+                System.err.println("ERRO: Não foi possível encontrar o arquivo config.properties na pasta resources.");
+                System.err.println("Certifique-se de que o arquivo existe em: src/main/resources/config.properties");
+                throw new IOException("Arquivo de configuração não encontrado no classpath.");
+            }
             properties.load(input);
         } catch (IOException ex) {
-            System.err.println("ERRO FATAL: Não foi possível encontrar ou ler o arquivo 'config.properties' na pasta de execução.");
-            System.err.println("Certifique-se de que o arquivo config.properties está na mesma pasta que o arquivo .jar.");
+            System.err.println("ERRO FATAL: Falha ao carregar o arquivo de configuração. A aplicação será encerrada.");
+            ex.printStackTrace();
             System.exit(1);
         }
     }
