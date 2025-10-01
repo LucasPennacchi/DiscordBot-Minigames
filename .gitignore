@@ -1,11 +1,25 @@
 # Ignorar arquivos de configuração com dados sensíveis
 config.properties
 
+# Arquivos de dados gerados pela aplicação em tempo de execução
+server_configs.json
+
 # Arquivos e pastas gerados pelo Maven
 target/
 
 # Arquivos de log
 *.log
+log/
+logs/
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de configuração de IDEs
+.idea/
+*.iml
+*.iws
 
 ### IntelliJ IDEA ###
 out/
