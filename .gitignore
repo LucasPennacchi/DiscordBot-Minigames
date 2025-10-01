@@ -1,6 +1,12 @@
 # Ignorar arquivos de configuração com dados sensíveis
 config.properties
 
+# Arquivos e pastas gerados pelo Maven
+target/
+
+# Arquivos de log
+*.log
+
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/
