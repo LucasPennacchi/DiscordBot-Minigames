@@ -1,0 +1,6 @@
+# Configuracoes do Bot de Discord
+# Renomeie este arquivo para "config.properties" e preencha com seus valores.
+
+BOT_TOKEN=COLE_SEU_TOKEN_SECRETO_AQUI
+TEST_GUILD_ID=COLE_O_ID_DO_SEU_SERVIDOR_DE_TESTE_AQUI
+DEV_MODE=true
